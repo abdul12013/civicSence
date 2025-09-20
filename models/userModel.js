@@ -14,11 +14,19 @@ const userSchema=mongoose.Schema({
 
     role: { 
     type: String, 
-    enum: ['citizen', 'staff', 'admin'], 
-    default: 'citizen' 
+    enum: ['citizen', 'staff'],  
   },
 
-    issuesss:{
+  profile : {
+    address: { type: String },
+    phone: { type: String },
+  },
+
+  department: {
+    type: String,
+  },
+
+    issuess:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"issues"
     },

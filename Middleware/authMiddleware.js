@@ -1,23 +1,19 @@
-import jwt from "jsonwebtoken";
+import jwt from 'jsonwebtoken';
+import dotenv from 'dotenv';
 
-const auth =
-  (roles = []) =>
-  (req, res, next) => {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
-    if (!token) return res.status(401).json({ msg: "No token" });
+dotenv.config();
 
-    try {
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      req.user = decoded;
+export const protect = (req, res, next) => {
+  const token = req.header('Authorization')?.split(' ')[1];
+  if (!token) {
+    return res.status(401).json({ success: false, error: 'No token' });
+  }
 
-      if (roles.length && !roles.includes(decoded.role)) {
-        return res.status(403).json({ msg: "Access denied" });
-      }
-
-      next();
-    } catch (err) {
-      res.status(401).json({ msg: "Invalid token" });
-    }
-  };
-
-export default auth;
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // attach user payload { id, role }
+    next();
+  } catch (err) {
+    res.status(401).json({ success: false, error: 'Invalid token' });
+  }
+};

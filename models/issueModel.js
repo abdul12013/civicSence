@@ -11,21 +11,14 @@ const issueSchema =  mongoose.Schema({
     type: String,
     trim: true
   },
-  photoUrl: [String], // array of image URLs (multiple photos allowed)
+  photoUrl: String, // single image URL
   audioUrl: String,
 
   location: {
-    type: {
-      type: String,
-      enum: ["Point"],
-      default: "Point"
-    },
-    coordinates: {
-      type: [Number],  // [longitude, latitude]
-      required: true
-    },
-    address: String    // optional human-readable address
+    type: [Number],  // [longitude, latitude]
+    required: true
   },
+
 
   reportedBy: {
     type: mongoose.Schema.Types.ObjectId,
@@ -36,12 +29,28 @@ const issueSchema =  mongoose.Schema({
 
   category: {
     type: String,
+    required: true, 
     enum: [
       "pothole",
-      "streetlight",
-      "garbage",
-      "water_supply",
-      "other"
+    "streetlight",
+    "garbage",
+    "water_supply",
+    "sewage",
+    "drainage_blockage",
+    "road_damage",
+    "traffic_signal",
+    "illegal_parking",
+    "tree_fallen",
+    "building_damage",
+    "public_toilet",
+    "noise_pollution",
+    "air_pollution",
+    "animal_control",
+    "encroachment",
+    "electricity",
+    "signage_damage",
+    "park_maintenance",
+    "other"
     ],
     default: "other"
   },
@@ -65,6 +74,12 @@ const issueSchema =  mongoose.Schema({
   assignedStaff: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "User"     // references staff/admin user if needed
+  },
+
+  completionImage: { type: String }, // Cloudinary URL
+  completionLocation: {
+    type: [Number],  // [longitude, latitude]
+    // required: true
   },
 
   // --- Audit / Tracking ---
@@ -96,17 +111,17 @@ const issueSchema =  mongoose.Schema({
 issueSchema.index({ location: "2dsphere" });
 
 // Auto-assign department based on category (can be overridden by admin)
-issueSchema.pre('save', function(next) {
-  if (this.isNew || this.isModified('category')) {
-    switch (this.category) {
-      case 'pothole': this.assignedDepartment = 'Public Works'; break;
-      case 'streetlight': this.assignedDepartment = 'Utilities'; break;
-      case 'garbage': this.assignedDepartment = 'Sanitation'; break;
-      case 'water_supply': this.assignedDepartment = 'Water Department'; break;
-      default: this.assignedDepartment = 'General';
-    }
-  }
-  next();
-});
+// issueSchema.pre('save', function(next) {
+  // if (this.isNew || this.isModified('category')) {
+  //   switch (this.category) {
+  //     case 'pothole': this.assignedDepartment = 'Public Works'; break;
+  //     case 'streetlight': this.assignedDepartment = 'Utilities'; break;
+  //     case 'garbage': this.assignedDepartment = 'Sanitation'; break;
+  //     case 'water_supply': this.assignedDepartment = 'Water Department'; break;
+  //     default: this.assignedDepartment = 'General';
+  //   }
+  // }
+//   next();
+// });
 
 export const issueModel=mongoose.model('issue',issueSchema)
